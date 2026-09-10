@@ -199,15 +199,44 @@ export default function ProjectsTab({ projects = [], onChange }) {
               />
             </div>
 
-            <div className="admin-form-group">
-              <label className="admin-label">Key Metric / Highlight</label>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
+            {/* Key Metric & Impact Milestone */}
+            <div className="admin-form-group" style={{ background: "rgba(0, 240, 255, 0.03)", border: "1px solid rgba(0, 240, 255, 0.15)", borderRadius: 8, padding: "0.85rem" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+                <label className="admin-label" style={{ color: "#00f0ff", fontWeight: 700, margin: 0, display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span>⚡ Key Metric / Performance Milestone</span>
+                </label>
+                <span style={{ fontSize: "0.72rem", color: "#94a3b8", fontFamily: "monospace" }}>
+                  Displayed prominently on project cards
+                </span>
+              </div>
+
+              <textarea
+                className="admin-textarea"
+                rows={2}
+                style={{
+                  width: "100%",
+                  minHeight: "52px",
+                  fontSize: "0.88rem",
+                  lineHeight: 1.45,
+                  padding: "0.55rem 0.75rem",
+                  background: "rgba(0, 0, 0, 0.5)",
+                  border: "1px solid rgba(0, 240, 255, 0.25)",
+                  borderRadius: 6,
+                  resize: "vertical",
+                  color: "#f8fafc",
+                }}
                 value={proj.highlight || ""}
-                placeholder="e.g. Handles 500+ concurrent users with sub-50ms latency"
+                placeholder="e.g. Outperformed baselines using 4-bit QLoRA GRPO with sub-50ms inference latency"
                 onChange={(e) => updateProject(idx, "highlight", e.target.value)}
               />
+
+              {/* Live Metric Preview */}
+              {proj.highlight && (
+                <div style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem", color: "#38bdf8", background: "rgba(56, 189, 248, 0.1)", padding: "0.4rem 0.75rem", borderRadius: 6, border: "1px solid rgba(56, 189, 248, 0.25)" }}>
+                  <span style={{ fontWeight: 800 }}>LIVE PREVIEW:</span>
+                  <span style={{ flex: 1 }}>{proj.highlight}</span>
+                </div>
+              )}
             </div>
 
             <div className="admin-form-group">

@@ -11,6 +11,14 @@ export default function IdentityTab({ identity = {}, onChange }) {
     });
   };
 
+  const updateDriverRating = (attr, val) => {
+    const current = identity.driverRatings || { exp: 70, cod: 75, sys: 85, pac: 86 };
+    updateField("driverRatings", {
+      ...current,
+      [attr]: Math.max(0, Math.min(99, parseInt(val) || 0)),
+    });
+  };
+
   const handleBioChange = (idx, value) => {
     const updatedBio = [...(identity.bio || [])];
     updatedBio[idx] = value;
@@ -239,6 +247,127 @@ export default function IdentityTab({ identity = {}, onChange }) {
               onChange={(e) => updateField("repos", parseInt(e.target.value) || 0)}
               min={0}
             />
+          </div>
+        </div>
+
+        {/* Driver Ratings & OVR Attributes */}
+        <div style={{ marginTop: "1.5rem", padding: "1rem", background: "rgba(225, 6, 0, 0.04)", border: "1px solid rgba(225, 6, 0, 0.2)", borderRadius: 8 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <div>
+              <h4 className="admin-label" style={{ margin: 0, color: "#e10600", fontSize: "0.95rem", fontWeight: 800 }}>
+                Official Driver Attributes (0 — 99)
+              </h4>
+              <p style={{ margin: "0.2rem 0 0", fontSize: "0.78rem", color: "#94a3b8" }}>
+                Powers the F1 Driver Supercard badge rating on Sector 1 and Paddock
+              </p>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "0.75rem", color: "#94a3b8", fontFamily: "monospace" }}>OVERALL (OVR):</span>
+              <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#fbbf24", background: "rgba(251, 191, 36, 0.15)", padding: "0.2rem 0.6rem", borderRadius: 6, border: "1px solid rgba(251, 191, 36, 0.4)" }}>
+                {identity.overallRating ?? 80}
+              </span>
+            </div>
+          </div>
+
+          <div className="admin-grid-2" style={{ marginBottom: "1rem" }}>
+            <div className="admin-form-group">
+              <label className="admin-label">Overall Rating (OVR: 0 — 99)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <input
+                  type="range"
+                  min={0}
+                  max={99}
+                  style={{ flex: 1, accentColor: "#fbbf24" }}
+                  value={identity.overallRating ?? 80}
+                  onChange={(e) => updateField("overallRating", parseInt(e.target.value) || 0)}
+                />
+                <input
+                  type="number"
+                  className="admin-input admin-input-plain"
+                  style={{ width: 70, textAlign: "center" }}
+                  min={0}
+                  max={99}
+                  value={identity.overallRating ?? 80}
+                  onChange={(e) => updateField("overallRating", Math.min(99, Math.max(0, parseInt(e.target.value) || 0)))}
+                />
+              </div>
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-label">Experience Rating (EXP: 0 — 99)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <input
+                  type="range"
+                  min={0}
+                  max={99}
+                  style={{ flex: 1, accentColor: "#e10600" }}
+                  value={identity.driverRatings?.exp ?? 70}
+                  onChange={(e) => updateDriverRating("exp", e.target.value)}
+                />
+                <input
+                  type="number"
+                  className="admin-input admin-input-plain"
+                  style={{ width: 70, textAlign: "center" }}
+                  min={0}
+                  max={99}
+                  value={identity.driverRatings?.exp ?? 70}
+                  onChange={(e) => updateDriverRating("exp", e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="admin-grid-3">
+            <div className="admin-form-group">
+              <label className="admin-label">Coding Skill (COD: 0 — 99)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input
+                  type="range"
+                  min={0}
+                  max={99}
+                  style={{ flex: 1, accentColor: "#00f0ff" }}
+                  value={identity.driverRatings?.cod ?? 75}
+                  onChange={(e) => updateDriverRating("cod", e.target.value)}
+                />
+                <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#00f0ff", minWidth: 28, textAlign: "right" }}>
+                  {identity.driverRatings?.cod ?? 75}
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-label">Systems Arch (SYS: 0 — 99)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input
+                  type="range"
+                  min={0}
+                  max={99}
+                  style={{ flex: 1, accentColor: "#a855f7" }}
+                  value={identity.driverRatings?.sys ?? 85}
+                  onChange={(e) => updateDriverRating("sys", e.target.value)}
+                />
+                <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#a855f7", minWidth: 28, textAlign: "right" }}>
+                  {identity.driverRatings?.sys ?? 85}
+                </span>
+              </div>
+            </div>
+
+            <div className="admin-form-group">
+              <label className="admin-label">Execution Pace (PAC: 0 — 99)</label>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <input
+                  type="range"
+                  min={0}
+                  max={99}
+                  style={{ flex: 1, accentColor: "#22c55e" }}
+                  value={identity.driverRatings?.pac ?? 86}
+                  onChange={(e) => updateDriverRating("pac", e.target.value)}
+                />
+                <span style={{ fontSize: "0.88rem", fontWeight: 700, color: "#22c55e", minWidth: 28, textAlign: "right" }}>
+                  {identity.driverRatings?.pac ?? 86}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

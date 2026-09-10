@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FiPlus, FiTrash2, FiBriefcase, FiBookOpen } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiBriefcase, FiBookOpen, FiArrowUp, FiArrowDown } from "react-icons/fi";
 
 export default function ExperienceTab({ experience = [], education = [], onChangeExperience, onChangeEducation }) {
   const [newHighlightInputs, setNewHighlightInputs] = useState({});
@@ -29,6 +29,24 @@ export default function ExperienceTab({ experience = [], education = [], onChang
     if (window.confirm("Remove this experience record?")) {
       onChangeExperience(experience.filter((_, i) => i !== idx));
     }
+  };
+
+  const updateHighlight = (expIdx, hIdx, value) => {
+    const exp = experience[expIdx];
+    const updatedHighlights = [...(exp.highlights || [])];
+    updatedHighlights[hIdx] = value;
+    updateExperience(expIdx, "highlights", updatedHighlights);
+  };
+
+  const moveHighlight = (expIdx, hIdx, direction) => {
+    const exp = experience[expIdx];
+    const updatedHighlights = [...(exp.highlights || [])];
+    const targetIdx = hIdx + direction;
+    if (targetIdx < 0 || targetIdx >= updatedHighlights.length) return;
+    const temp = updatedHighlights[hIdx];
+    updatedHighlights[hIdx] = updatedHighlights[targetIdx];
+    updatedHighlights[targetIdx] = temp;
+    updateExperience(expIdx, "highlights", updatedHighlights);
   };
 
   const addHighlight = (expIdx) => {
@@ -149,41 +167,87 @@ export default function ExperienceTab({ experience = [], education = [], onChang
 
           {/* Highlights */}
           <div className="admin-form-group">
-            <label className="admin-label">Key Highlights &amp; Metric Impact</label>
-            <ul style={{ listStyle: "none", padding: 0, margin: "0 0 0.75rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+              <label className="admin-label" style={{ margin: 0 }}>Key Highlights &amp; Metric Impact</label>
+              <span style={{ fontSize: "0.75rem", color: "#64748b", fontFamily: "monospace" }}>
+                {(exp.highlights || []).length} impact points
+              </span>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "0.75rem" }}>
               {(exp.highlights || []).map((h, hIdx) => (
-                <li
+                <div
                   key={hIdx}
                   style={{
                     display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    marginBottom: "0.4rem",
-                    padding: "0.4rem 0.6rem",
+                    alignItems: "flex-start",
+                    gap: "0.6rem",
+                    padding: "0.5rem 0.65rem",
                     background: "rgba(255, 255, 255, 0.03)",
-                    borderRadius: 6,
-                    fontSize: "0.88rem",
+                    border: "1px solid rgba(255, 255, 255, 0.08)",
+                    borderRadius: 8,
+                    transition: "border-color 0.2s ease",
                   }}
                 >
-                  <span style={{ color: "#e10600" }}>▸</span>
-                  <span style={{ flex: 1 }}>{h}</span>
-                  <button
-                    type="button"
-                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer" }}
-                    onClick={() => removeHighlight(idx, hIdx)}
-                    title="Remove bullet point"
-                  >
-                    <FiTrash2 size={13} />
-                  </button>
-                </li>
+                  <span style={{ color: "#e10600", fontSize: "1rem", marginTop: "0.35rem", userSelect: "none" }}>▸</span>
+                  <textarea
+                    className="admin-textarea"
+                    rows={2}
+                    style={{
+                      flex: 1,
+                      minHeight: "42px",
+                      fontSize: "0.86rem",
+                      lineHeight: 1.4,
+                      padding: "0.45rem 0.65rem",
+                      background: "rgba(0, 0, 0, 0.4)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      borderRadius: 6,
+                      resize: "vertical",
+                    }}
+                    value={h}
+                    onChange={(e) => updateHighlight(idx, hIdx, e.target.value)}
+                    placeholder="Engineering achievement with quantifiable metric..."
+                  />
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-secondary"
+                      style={{ padding: "0.25rem 0.45rem", fontSize: "0.7rem" }}
+                      disabled={hIdx === 0}
+                      onClick={() => moveHighlight(idx, hIdx, -1)}
+                      title="Move Up"
+                    >
+                      <FiArrowUp size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-secondary"
+                      style={{ padding: "0.25rem 0.45rem", fontSize: "0.7rem" }}
+                      disabled={hIdx === (exp.highlights || []).length - 1}
+                      onClick={() => moveHighlight(idx, hIdx, 1)}
+                      title="Move Down"
+                    >
+                      <FiArrowDown size={12} />
+                    </button>
+                    <button
+                      type="button"
+                      className="admin-btn admin-btn-danger"
+                      style={{ padding: "0.25rem 0.45rem", fontSize: "0.7rem" }}
+                      onClick={() => removeHighlight(idx, hIdx)}
+                      title="Remove Point"
+                    >
+                      <FiTrash2 size={12} />
+                    </button>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
 
             <div style={{ display: "flex", gap: "0.5rem" }}>
               <input
                 type="text"
                 className="admin-input admin-input-plain"
-                placeholder="Add bullet point achievement (e.g. Reduced API latency by 35%)..."
+                placeholder="Add new metric or achievement (e.g. Reduced API latency by 35%)..."
                 value={newHighlightInputs[idx] || ""}
                 onChange={(e) => setNewHighlightInputs({ ...newHighlightInputs, [idx]: e.target.value })}
                 onKeyDown={(e) => {
@@ -198,7 +262,7 @@ export default function ExperienceTab({ experience = [], education = [], onChang
                 className="admin-btn admin-btn-secondary"
                 onClick={() => addHighlight(idx)}
               >
-                Add Bullet
+                <FiPlus size={14} /> Add Bullet
               </button>
             </div>
           </div>
