@@ -25,11 +25,36 @@ const FAMOUS_QUOTES = [
   "GP2 engine, GP2... aarrgh!"
 ];
 
+const TYPING_QUOTES = [
+  "Analyzing keystrokes...",
+  "Input sequence detected.",
+  "Writing telemetry...",
+  "Syntax is looking clean.",
+  "I'm keeping an eye on this.",
+];
+
 export default function MiniRaceEngineer({ activeTab }) {
   const [message, setMessage] = useState("");
   const [displayedMessage, setDisplayedMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  
+  // Coordinates for silky smooth tracking
+  const [position, setPosition] = useState({ top: 0, left: 0 }); 
+  const [eyeExpression, setEyeExpression] = useState("idle"); 
+
+  // Set initial home position on mount (bottom right corner)
+  useEffect(() => {
+    const setHome = () => {
+      setPosition({ 
+        top: window.innerHeight - 130, 
+        left: window.innerWidth - 130 
+      });
+    };
+    setHome();
+    window.addEventListener("resize", setHome);
+    return () => window.removeEventListener("resize", setHome);
+  }, []);
 
   // Initialization sequence
   useEffect(() => {
@@ -49,24 +74,103 @@ export default function MiniRaceEngineer({ activeTab }) {
     setMessage(targetMsg);
     setDisplayedMessage("");
     setIsTyping(true);
+    setEyeExpression("scanning");
+    setTimeout(() => setEyeExpression("idle"), 2000);
   }, [activeTab, isInitialized]); 
 
-  // Random quotes (every 30 seconds)
+  // Random quotes (every 25 seconds)
   useEffect(() => {
     if (!isInitialized) return;
     const interval = setInterval(() => {
-      if (Math.random() > 0.5 && !isTyping) {
+      if (Math.random() > 0.5 && !isTyping && eyeExpression === "idle") {
         const randomQuote = FAMOUS_QUOTES[Math.floor(Math.random() * FAMOUS_QUOTES.length)];
         setMessage(`[RADIO]: "${randomQuote}"`);
         setDisplayedMessage("");
         setIsTyping(true);
+        
+        // Pick a random expression when talking
+        const expressions = ["happy", "surprised", "love", "thinking"];
+        const randExpr = expressions[Math.floor(Math.random() * expressions.length)];
+        setEyeExpression(randExpr);
+        setTimeout(() => setEyeExpression("idle"), 3000);
       }
-    }, 30000);
+    }, 25000);
     return () => clearInterval(interval);
-  }, [isInitialized, isTyping]);
+  }, [isInitialized, isTyping, eyeExpression]);
 
-  // Hover triggers a quote
+  // Global Typing Detection Listener - The droid flies over to look!
+  useEffect(() => {
+    let typingTimeout;
+    let currentInput = null;
+
+    const handleKeyDown = (e) => {
+      const tagName = e.target.tagName.toLowerCase();
+      if (tagName === 'input' || tagName === 'textarea') {
+        
+        // FIX LAG: Only calculate bounding rect if the input field changed
+        // getBoundingClientRect is extremely expensive and causes lag if called on every keystroke
+        if (currentInput !== e.target) {
+          currentInput = e.target;
+          const rect = e.target.getBoundingClientRect();
+          let targetLeft = rect.right + 20; // Fly to the right side of the input
+          let targetTop = rect.top - 30;    // Hover slightly above it
+
+          // Boundary checks so it doesn't fly off screen
+          if (targetLeft > window.innerWidth - 120) {
+             targetLeft = rect.left - 100; // Flip to left side if not enough room
+          }
+          if (targetTop < 80) {
+             targetTop = rect.bottom + 20; // Go below if hitting the top roof
+          }
+
+          setPosition({ top: targetTop, left: targetLeft });
+        }
+
+        setEyeExpression('typing');
+        
+        // Sometimes it says something while watching you type
+        if (!isTyping && Math.random() > 0.95) {
+          const tQuote = TYPING_QUOTES[Math.floor(Math.random() * TYPING_QUOTES.length)];
+          setMessage(`[RADIO]: "${tQuote}"`);
+          setDisplayedMessage("");
+          setIsTyping(true);
+        }
+
+        // Debounce to return home when typing stops
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+          // Give a happy squint when done typing
+          setEyeExpression('happy');
+          currentInput = null; // reset input tracking
+          
+          // Fly back home
+          setPosition({ 
+            top: window.innerHeight - 130, 
+            left: window.innerWidth - 130 
+          });
+
+          // Return eyes to idle
+          setTimeout(() => {
+            setEyeExpression((prev) => prev === 'happy' ? 'idle' : prev);
+          }, 2000);
+        }, 1500); 
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      clearTimeout(typingTimeout);
+    };
+  }, [isTyping]);
+
+  // Hover triggers a quote and a surprised look
   const handleHover = () => {
+    setEyeExpression('surprised');
+    setTimeout(() => {
+      setEyeExpression(prev => prev === 'surprised' ? 'idle' : prev);
+    }, 2000);
+
     if (isTyping) return;
     const randomQuote = FAMOUS_QUOTES[Math.floor(Math.random() * FAMOUS_QUOTES.length)];
     setMessage(`[RADIO]: "${randomQuote}"`);
@@ -74,7 +178,7 @@ export default function MiniRaceEngineer({ activeTab }) {
     setIsTyping(true);
   };
 
-  // Typing effect
+  // Typing effect for the speech bubble
   useEffect(() => {
     if (!isTyping) return;
     let i = 0;
@@ -93,17 +197,90 @@ export default function MiniRaceEngineer({ activeTab }) {
     return () => clearInterval(interval);
   }, [message, isTyping]);
 
+  // Render dynamic SVG eyes based on expression state
+  const renderEyes = () => {
+    switch (eyeExpression) {
+      case 'typing':
+        // Focused, angled down/left towards the keyboard
+        return (
+          <g filter="drop-shadow(0 0 6px var(--accent-cyan))" className="eyes-transition">
+            <ellipse cx="33" cy="63" rx="6" ry="2.5" fill="var(--accent-cyan)" transform="rotate(15 33 63)" />
+            <ellipse cx="67" cy="63" rx="6" ry="2.5" fill="var(--accent-cyan)" transform="rotate(-15 67 63)" />
+          </g>
+        );
+      case 'happy':
+        // Happy ^ ^ squint
+        return (
+          <g filter="drop-shadow(0 0 6px var(--accent-cyan))" className="eyes-transition">
+            <path d="M 30 63 Q 35 56 40 63" fill="none" stroke="var(--accent-cyan)" strokeWidth="3" strokeLinecap="round" />
+            <path d="M 60 63 Q 65 56 70 63" fill="none" stroke="var(--accent-cyan)" strokeWidth="3" strokeLinecap="round" />
+          </g>
+        );
+      case 'surprised':
+        // Big O_O circles
+        return (
+          <g filter="drop-shadow(0 0 8px #fff)" className="eyes-transition">
+            <circle cx="35" cy="62" r="6" fill="#fff" />
+            <circle cx="65" cy="62" r="6" fill="#fff" />
+          </g>
+        );
+      case 'thinking':
+        // Thinking / Loading expression (One big, one small)
+        return (
+          <g filter="drop-shadow(0 0 6px var(--accent-cyan))" className="eyes-transition">
+            <circle cx="35" cy="62" r="4" fill="var(--accent-cyan)" />
+            <ellipse cx="65" cy="62" rx="4" ry="1.5" fill="var(--accent-cyan)" />
+          </g>
+        );
+      case 'love':
+        // Heart eyes ♥ ♥
+        return (
+          <g filter="drop-shadow(0 0 6px #ff1e1e)" className="eyes-transition" fill="#ff1e1e">
+            <path d="M 35 65 L 31 61 A 3 3 0 0 1 35 58 A 3 3 0 0 1 39 61 Z" />
+            <path d="M 65 65 L 61 61 A 3 3 0 0 1 65 58 A 3 3 0 0 1 69 61 Z" />
+          </g>
+        );
+      case 'scanning':
+        // Cylon scanning visor
+        return (
+          <g className="cylon-scanner">
+            <ellipse cx="50" cy="62" rx="15" ry="4" fill="url(#eyeScanner)" />
+            <circle cx="50" cy="62" r="3" fill="#ffffff" />
+          </g>
+        );
+      case 'angry':
+        // Angry \ / angled eyes
+        return (
+          <g filter="drop-shadow(0 0 6px #ff1e1e)" className="eyes-transition">
+            <ellipse cx="33" cy="63" rx="6" ry="2" fill="#ff1e1e" transform="rotate(25 33 63)" />
+            <ellipse cx="67" cy="63" rx="6" ry="2" fill="#ff1e1e" transform="rotate(-25 67 63)" />
+          </g>
+        );
+      case 'idle':
+      default:
+        // Normal oval blinking eyes
+        return (
+          <g filter="drop-shadow(0 0 5px var(--accent-cyan))" className="eyes-idle">
+            <ellipse cx="35" cy="62" rx="3.5" ry="6" fill="var(--accent-cyan)" />
+            <ellipse cx="65" cy="62" rx="3.5" ry="6" fill="var(--accent-cyan)" />
+          </g>
+        );
+    }
+  };
+
   return (
     <div
       style={{
         position: "fixed",
-        bottom: "40px",
-        right: "40px",
+        top: position.top,
+        left: position.left,
         zIndex: 9999,
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         pointerEvents: "auto", 
+        // Silky smooth CSS interpolation for gliding across the screen
+        transition: "top 1.2s cubic-bezier(0.25, 1, 0.5, 1), left 1.2s cubic-bezier(0.25, 1, 0.5, 1)", 
       }}
       onMouseEnter={handleHover}
     >
@@ -113,15 +290,19 @@ export default function MiniRaceEngineer({ activeTab }) {
           background: "rgba(10, 11, 16, 0.95)",
           border: "1px solid var(--accent-cyan)",
           borderRadius: "var(--radius-md)",
-          padding: "0.7rem 1rem",
+          padding: "0.8rem 1.2rem",
           marginBottom: "1rem",
-          maxWidth: "240px",
+          width: "200px", /* Slightly narrower */
+          boxSizing: "border-box",
+          wordWrap: "break-word",
           fontFamily: "var(--font-mono)",
           fontSize: "0.75rem",
           color: "var(--accent-cyan)",
           lineHeight: 1.5,
           boxShadow: "0 0 20px rgba(0, 240, 255, 0.2)",
-          position: "relative",
+          position: "absolute",
+          bottom: "100%",
+          right: "-10px", /* Pin to the right side so it extends leftward and avoids screen edge */
           opacity: displayedMessage ? 1 : 0,
           transition: "opacity 0.3s",
           textAlign: "center",
@@ -136,8 +317,8 @@ export default function MiniRaceEngineer({ activeTab }) {
           style={{
             position: "absolute",
             bottom: "-6px",
-            left: "50%",
-            transform: "translateX(-50%) rotate(45deg)",
+            right: "40px", /* Move tail to align with mascot head */
+            transform: "rotate(45deg)",
             width: "12px",
             height: "12px",
             background: "rgba(10, 11, 16, 0.95)",
@@ -176,11 +357,10 @@ export default function MiniRaceEngineer({ activeTab }) {
               <stop offset="100%" stopColor="#111" />
             </linearGradient>
 
-            <radialGradient id="eyeScanner" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="30%" stopColor="var(--accent-cyan)" />
-              <stop offset="100%" stopColor="rgba(0, 240, 255, 0)" />
-            </radialGradient>
+            {/* LED Screen Pattern for the Visor */}
+            <pattern id="ledGrid" width="4" height="4" patternUnits="userSpaceOnUse">
+              <circle cx="2" cy="2" r="1.5" fill="#000" opacity="0.6"/>
+            </pattern>
 
             {/* Booster Gradients */}
             <radialGradient id="outerFlame" cx="50%" cy="0%" r="100%">
@@ -194,18 +374,20 @@ export default function MiniRaceEngineer({ activeTab }) {
               <stop offset="60%" stopColor="var(--accent-cyan)" />
               <stop offset="100%" stopColor="rgba(0, 240, 255, 0)" />
             </radialGradient>
+            
+            <radialGradient id="eyeScanner" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#ffffff" />
+              <stop offset="30%" stopColor="var(--accent-cyan)" />
+              <stop offset="100%" stopColor="rgba(0, 240, 255, 0)" />
+            </radialGradient>
           </defs>
 
           {/* Detailed Booster/Exhaust Assembly */}
           <g className="droid-booster-system">
-            {/* Outer thrust flame */}
             <path d="M 32 88 Q 50 115 68 88 Z" fill="url(#outerFlame)" className="flame-outer" />
-            {/* Inner hotter thrust core */}
             <path d="M 38 88 Q 50 105 62 88 Z" fill="url(#innerFlame)" className="flame-inner" />
-            {/* Super hot ignition ring */}
             <ellipse cx="50" cy="88" rx="14" ry="4" fill="#ffffff" opacity="0.9" className="flame-core" />
             
-            {/* Mechanical Exhaust Nozzle */}
             <path d="M 38 80 L 62 80 L 68 88 L 32 88 Z" fill="#111" stroke="#333" strokeWidth="2" />
             <line x1="45" y1="80" x2="45" y2="88" stroke="#333" strokeWidth="1" />
             <line x1="55" y1="80" x2="55" y2="88" stroke="#333" strokeWidth="1" />
@@ -214,21 +396,22 @@ export default function MiniRaceEngineer({ activeTab }) {
           {/* Main Helmet Dome */}
           <path d="M 20 50 Q 20 15 50 15 Q 80 15 80 50 L 75 80 Q 50 90 25 80 Z" fill="url(#helmetGrad)" />
           
-          {/* Helmet Ridge (Aerodynamic fin) */}
           <path d="M 48 10 Q 50 5 52 10 L 52 40 L 48 40 Z" fill="#fff" opacity="0.8" />
           <path d="M 50 10 L 50 40" stroke="#b30000" strokeWidth="1" />
 
-          {/* Visor Cutout */}
+          {/* Visor Screen Base */}
           <path d="M 18 45 Q 50 65 82 45 L 75 70 Q 50 85 25 70 Z" fill="url(#visorGrad)" stroke="#111" strokeWidth="2" />
           
+          {/* LED Grid Overlay (Sphere Effect) */}
+          <path d="M 18 45 Q 50 65 82 45 L 75 70 Q 50 85 25 70 Z" fill="url(#ledGrid)" />
+
           {/* Visor Glare/Reflection */}
           <path d="M 22 48 Q 50 62 78 48 Q 50 55 22 48" fill="#ffffff" opacity="0.15" />
           <path d="M 25 65 L 35 55 L 40 58 L 28 68 Z" fill="#ffffff" opacity="0.05" />
 
-          {/* Cylon Scanner Eye (Animated inside visor) */}
-          <g className="cylon-scanner">
-            <ellipse cx="50" cy="62" rx="18" ry="7" fill="url(#eyeScanner)" />
-            <circle cx="50" cy="62" r="4" fill="#ffffff" />
+          {/* Dynamic Sphere LED Eyes */}
+          <g className="sphere-eyes">
+            {renderEyes()}
           </g>
 
           {/* Carbon Fiber Mouthpiece/Vent */}
@@ -242,7 +425,6 @@ export default function MiniRaceEngineer({ activeTab }) {
           <circle cx="16" cy="55" r="4" fill="var(--accent-f1)" />
           <circle cx="84" cy="55" r="4" fill="var(--accent-f1)" />
           
-          {/* Detailed Comms Antenna */}
           <line x1="84" y1="40" x2="95" y2="20" stroke="#555" strokeWidth="2" />
           <line x1="81" y1="40" x2="87" y2="40" stroke="#222" strokeWidth="3" />
           <circle cx="95" cy="20" r="4" fill="var(--accent-cyan)" className="antenna-blink" />
@@ -259,14 +441,32 @@ export default function MiniRaceEngineer({ activeTab }) {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
         }
+
+        /* Sphere Eye Animations */
+        .eyes-idle {
+          animation: sphereBlink 4s infinite;
+          transform-origin: 50% 62px;
+        }
+        @keyframes sphereBlink {
+          0%, 96%, 100% { transform: scaleY(1); }
+          98% { transform: scaleY(0.1); }
+        }
+        .eyes-transition {
+          animation: popIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @keyframes popIn {
+          0% { transform: scale(0.8); opacity: 0; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        
         .cylon-scanner {
-          animation: scanVisor 3.5s ease-in-out infinite alternate;
+          animation: scanVisor 2s ease-in-out infinite alternate;
         }
         @keyframes scanVisor {
           0% { transform: translateX(-18px); }
           100% { transform: translateX(18px); }
         }
-        
+
         /* High Fidelity Booster Animations */
         .flame-outer {
           animation: thrustOuter 0.15s infinite alternate;

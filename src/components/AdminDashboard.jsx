@@ -19,6 +19,8 @@ import {
   FiMenu,
   FiX,
   FiActivity,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import { FaFlagCheckered } from "react-icons/fa6";
 import { usePortfolioStore } from "../stores/usePortfolioStore";
@@ -73,6 +75,24 @@ export default function AdminDashboard() {
   const [toastType, setToastType] = useState("success"); // success | error | warning
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    return localStorage.getItem("isSidebarCollapsed") === "true";
+  });
+  const [isMascotEnabled, setIsMascotEnabled] = useState(() => {
+    return localStorage.getItem("isMascotEnabled") !== "false";
+  });
+
+  const toggleSidebar = () => {
+    const newState = !isSidebarCollapsed;
+    setIsSidebarCollapsed(newState);
+    localStorage.setItem("isSidebarCollapsed", newState);
+  };
+
+  const toggleMascot = () => {
+    const newState = !isMascotEnabled;
+    setIsMascotEnabled(newState);
+    localStorage.setItem("isMascotEnabled", newState);
+  };
 
   const data = usePortfolioStore((s) => s.data);
   const updateData = usePortfolioStore((s) => s.updateData);
@@ -364,10 +384,21 @@ export default function AdminDashboard() {
 
         {/* Sidebar Navigation — F1 Timing Tower */}
         <nav
-          className={`admin-sidebar ${mobileNavOpen ? "mobile-open" : ""}`}
+          className={`admin-sidebar ${mobileNavOpen ? "mobile-open" : ""} ${isSidebarCollapsed ? "collapsed" : ""}`}
           aria-label="Admin Navigation"
         >
-          <div className="admin-sidebar-label">Navigation</div>
+          <div className="admin-sidebar-header-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 var(--space-2)' }}>
+            {!isSidebarCollapsed && <div className="admin-sidebar-label" style={{ marginBottom: 0 }}>Navigation</div>}
+            <button 
+              type="button"
+              onClick={toggleSidebar} 
+              style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px', margin: isSidebarCollapsed ? '0 auto' : '0' }}
+              title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+            >
+              {isSidebarCollapsed ? <FiChevronRight size={16} /> : <FiChevronLeft size={16} />}
+            </button>
+          </div>
+
           {TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -375,19 +406,24 @@ export default function AdminDashboard() {
               <button
                 key={tab.id}
                 type="button"
+                onClick={() => {
+                  setActiveTab(tab.id);
+                  setMobileNavOpen(false);
+                }}
                 className={`admin-nav-tab ${isActive ? "active" : ""}`}
-                onClick={() => handleTabChange(tab.id)}
+                title={isSidebarCollapsed ? tab.label : ""}
               >
                 <span className="admin-nav-tab-icon">
                   <Icon size={16} />
                 </span>
-                <span>{tab.label}</span>
-                {tab.id === "projects" && (
+                {!isSidebarCollapsed && <span>{tab.label}</span>}
+                
+                {!isSidebarCollapsed && tab.id === "projects" && (
                   <span className="admin-nav-tab-badge">
                     {data.projects?.length || 0}
                   </span>
                 )}
-                {tab.id === "ai" && (
+                {!isSidebarCollapsed && tab.id === "ai" && (
                   <span className="admin-nav-tab-badge">
                     {data.aiKnowledge?.faqs?.length || 0}
                   </span>
@@ -395,6 +431,26 @@ export default function AdminDashboard() {
               </button>
             );
           })}
+
+          <div style={{ flex: 1 }} />
+          
+          <button 
+            type="button"
+            className="admin-nav-tab" 
+            style={{ 
+              marginTop: 'auto', 
+              borderLeftColor: isMascotEnabled ? 'var(--accent-cyan)' : 'transparent', 
+              color: isMascotEnabled ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+              justifyContent: isSidebarCollapsed ? 'center' : 'flex-start'
+            }}
+            onClick={toggleMascot}
+            title={isSidebarCollapsed ? `Pit Droid: ${isMascotEnabled ? "ON" : "OFF"}` : ""}
+          >
+            <span className="admin-nav-tab-icon">
+              <FiRadio size={16} />
+            </span>
+            {!isSidebarCollapsed && <span>Pit Droid: {isMascotEnabled ? "ON" : "OFF"}</span>}
+          </button>
         </nav>
 
         {/* Main Content Area */}
@@ -494,7 +550,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Floating Pixel Mascot */}
-      <MiniRaceEngineer activeTab={activeTab} />
+      {isMascotEnabled && <MiniRaceEngineer activeTab={activeTab} />}
     </div>
   );
 }
