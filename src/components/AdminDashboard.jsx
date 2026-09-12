@@ -18,6 +18,7 @@ import {
   FiServer,
   FiMenu,
   FiX,
+  FiActivity,
 } from "react-icons/fi";
 import { FaFlagCheckered } from "react-icons/fa6";
 import { usePortfolioStore } from "../stores/usePortfolioStore";
@@ -30,6 +31,7 @@ import SkillsTab from "./tabs/SkillsTab";
 import PassionsTab from "./tabs/PassionsTab";
 import AiTab from "./tabs/AiTab";
 import SocialsTab from "./tabs/SocialsTab";
+import AnalyticsTab from "./tabs/AnalyticsTab";
 import "./AdminDashboard.css";
 
 const TABS = [
@@ -40,6 +42,7 @@ const TABS = [
   { id: "passions", label: "Paddock Passions", icon: FiHeart },
   { id: "ai", label: "AI Race Engineer", icon: FiRadio },
   { id: "socials", label: "Comms & Links", icon: FiShare2 },
+  { id: "analytics", label: "Performance Telemetry", icon: FiActivity },
 ];
 
 function LiveClock() {
@@ -473,6 +476,10 @@ export default function AdminDashboard() {
                 setHasUnsavedChanges(true);
               }}
             />
+          )}
+
+          {activeTab === "analytics" && (
+            <AnalyticsTab />
           )}
         </main>
       </div>
