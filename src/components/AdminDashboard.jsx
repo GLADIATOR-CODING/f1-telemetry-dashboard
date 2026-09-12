@@ -16,6 +16,8 @@ import {
   FiCheckCircle,
   FiAlertTriangle,
   FiServer,
+  FiMenu,
+  FiX,
 } from "react-icons/fi";
 import { FaFlagCheckered } from "react-icons/fa6";
 import { usePortfolioStore } from "../stores/usePortfolioStore";
@@ -33,17 +35,40 @@ import "./AdminDashboard.css";
 const TABS = [
   { id: "identity", label: "Driver Identity", icon: FiUser },
   { id: "projects", label: "Projects Garage", icon: FiFolder },
-  { id: "experience", label: "Parc Fermé (Experience)", icon: FiBriefcase },
+  { id: "experience", label: "Parc Fermé", icon: FiBriefcase },
   { id: "skills", label: "Telemetry & Skills", icon: FiCpu },
   { id: "passions", label: "Paddock Passions", icon: FiHeart },
-  { id: "ai", label: "AI Race Engineer & FAQs", icon: FiRadio },
+  { id: "ai", label: "AI Race Engineer", icon: FiRadio },
   { id: "socials", label: "Comms & Links", icon: FiShare2 },
 ];
+
+function LiveClock() {
+  const [time, setTime] = useState("");
+  useEffect(() => {
+    const tick = () => {
+      const now = new Date();
+      setTime(
+        now.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+      );
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return <span className="admin-header-clock">{time}</span>;
+}
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("identity");
   const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState("success"); // success | error | warning
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const data = usePortfolioStore((s) => s.data);
   const updateData = usePortfolioStore((s) => s.updateData);
@@ -63,8 +88,9 @@ export default function AdminDashboard() {
     fetchPortfolio();
   }, [verifySession, fetchPortfolio]);
 
-  const showToast = (msg) => {
+  const showToast = (msg, type = "success") => {
     setToastMessage(msg);
+    setToastType(type);
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
@@ -76,7 +102,7 @@ export default function AdminDashboard() {
       setHasUnsavedChanges(false);
       showToast(res?.message || "Telemetry persisted & AI Race Engineer synchronized!");
     } catch (err) {
-      showToast(`Save failed: ${err.message}`);
+      showToast(`Save failed: ${err.message}`, "error");
     }
   };
 
@@ -91,7 +117,7 @@ export default function AdminDashboard() {
         setHasUnsavedChanges(false);
         showToast(isDemoMode ? "Sandbox reset to baseline." : "Telemetry reset to factory baseline.");
       } catch (err) {
-        showToast(`Reset failed: ${err.message}`);
+        showToast(`Reset failed: ${err.message}`, "error");
       }
     }
   };
@@ -118,20 +144,27 @@ export default function AdminDashboard() {
         if (parsed && typeof parsed === "object") {
           updateData(parsed);
           setHasUnsavedChanges(true);
-          showToast("JSON imported! Remember to click 'Save Telemetry'.");
+          showToast("JSON imported! Remember to click 'Save Telemetry'.", "warning");
         }
       } catch (err) {
-        alert("Invalid JSON configuration file: " + err.message);
+        showToast("Invalid JSON configuration file: " + err.message, "error");
       }
     };
     reader.readAsText(file);
     e.target.value = "";
   };
 
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    setMobileNavOpen(false);
+  };
+
   // If not authenticated, render Login terminal
   if (!isAuthenticated) {
     return (
       <div className="admin-viewport">
+        <div className="admin-grid-bg" />
+        <div className="admin-vignette" />
         <AdminLogin onLoginSuccess={() => fetchPortfolio()} />
       </div>
     );
@@ -139,9 +172,28 @@ export default function AdminDashboard() {
 
   return (
     <div className="admin-viewport">
-      {/* Top Telemetry Header */}
+      {/* Ambient layers */}
+      <div className="admin-grid-bg" />
+      <div className="admin-vignette" />
+      <div className="admin-corner-marker tl" />
+      <div className="admin-corner-marker tr" />
+      <div className="admin-corner-marker bl" />
+      <div className="admin-corner-marker br" />
+
+      {/* ═══ HEADER — Race Control Command Bar ═══ */}
       <header className="admin-header">
         <div className="admin-header-left">
+          {/* Mobile menu toggle */}
+          <button
+            type="button"
+            className="admin-btn admin-btn-secondary admin-mobile-menu-btn"
+            style={{ padding: "0.4rem" }}
+            onClick={() => setMobileNavOpen(!mobileNavOpen)}
+            aria-label="Toggle navigation"
+          >
+            {mobileNavOpen ? <FiX size={18} /> : <FiMenu size={18} />}
+          </button>
+
           <div className="admin-brand">
             <div className="admin-brand-icon">
               <FaFlagCheckered />
@@ -150,7 +202,7 @@ export default function AdminDashboard() {
               <h1>
                 PIT WALL <span>TELEMETRY</span>
               </h1>
-              <p>RACE DIRECTOR CONTROL ROOM</p>
+              <p>Race Director Control</p>
             </div>
           </div>
 
@@ -164,83 +216,79 @@ export default function AdminDashboard() {
             }`}
           >
             <span
+              className="admin-status-dot"
               style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
                 background: isDemoMode
                   ? "#f59e0b"
                   : source === "offline-fallback"
                   ? "#ef4444"
-                  : "#10b981",
+                  : "#00ff66",
+                boxShadow: `0 0 8px ${
+                  isDemoMode
+                    ? "rgba(245, 158, 11, 0.5)"
+                    : source === "offline-fallback"
+                    ? "rgba(239, 68, 68, 0.5)"
+                    : "rgba(0, 255, 102, 0.5)"
+                }`,
               }}
             />
             <span>
               {isDemoMode
-                ? "SHOWCASE SANDBOX (DEMO)"
+                ? "SANDBOX"
                 : source === "redis"
-                ? "UPSTASH REDIS LIVE"
+                ? "REDIS LIVE"
                 : source === "offline-fallback"
-                ? "OFFLINE FALLBACK"
-                : "SERVER SYNCED"}
+                ? "OFFLINE"
+                : "SYNCED"}
             </span>
           </div>
 
           {/* Server target badge */}
           {!isDemoMode && (
             <div
+              className="admin-hide-mobile"
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.35rem",
-                color: "#94a3b8",
-                fontSize: "0.72rem",
-                fontFamily: "var(--font-mono, monospace)",
+                gap: "0.3rem",
+                color: "var(--text-muted)",
+                fontSize: "0.65rem",
+                fontFamily: "var(--font-mono)",
               }}
               title={`Connected to: ${apiTarget}`}
             >
-              <FiServer size={12} color="#00f0ff" />
+              <FiServer size={11} color="var(--accent-cyan)" />
               <span>{apiTarget.replace(/^https?:\/\//, "")}</span>
             </div>
           )}
 
           {hasUnsavedChanges && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                color: "#ffb800",
-                fontSize: "0.75rem",
-                fontFamily: "monospace",
-              }}
-            >
-              <FiAlertTriangle size={14} />
-              <span>Unsaved Changes</span>
+            <div className="admin-unsaved-bar">
+              <FiAlertTriangle size={12} />
+              <span>Unsaved</span>
             </div>
           )}
         </div>
 
         <div className="admin-header-right">
-          {/* Export / Import */}
+          <LiveClock />
+
           <button
             type="button"
-            className="admin-btn admin-btn-secondary"
-            style={{ padding: "0.5rem 0.8rem", fontSize: "0.75rem" }}
+            className="admin-btn admin-btn-secondary admin-hide-mobile"
+            style={{ padding: "0.4rem 0.65rem", fontSize: "0.7rem" }}
             onClick={handleExportJson}
             title="Download JSON telemetry backup"
           >
-            <FiDownload size={14} />
-            <span className="hidden sm:inline">Export</span>
+            <FiDownload size={13} />
           </button>
 
           <label
-            className="admin-btn admin-btn-secondary"
-            style={{ padding: "0.5rem 0.8rem", fontSize: "0.75rem", cursor: "pointer", margin: 0 }}
+            className="admin-btn admin-btn-secondary admin-hide-mobile"
+            style={{ padding: "0.4rem 0.65rem", fontSize: "0.7rem", cursor: "pointer", margin: 0 }}
             title="Import JSON telemetry configuration"
           >
-            <FiUpload size={14} />
-            <span className="hidden sm:inline">Import</span>
+            <FiUpload size={13} />
             <input
               type="file"
               accept=".json"
@@ -249,179 +297,191 @@ export default function AdminDashboard() {
             />
           </label>
 
-          {/* Reset button */}
           <button
             type="button"
-            className="admin-btn admin-btn-danger"
-            style={{ padding: "0.5rem 0.8rem", fontSize: "0.75rem" }}
+            className="admin-btn admin-btn-danger admin-hide-mobile"
+            style={{ padding: "0.4rem 0.65rem", fontSize: "0.7rem" }}
             onClick={handleReset}
-            title="Reset to original template data"
+            title="Reset to factory defaults"
           >
-            <FiRotateCcw size={14} />
-            <span className="hidden sm:inline">Reset</span>
+            <FiRotateCcw size={13} />
           </button>
 
           {/* Save Telemetry Button */}
           <button
             type="button"
             className="admin-btn admin-btn-primary"
-            style={{ width: "auto", padding: "0.55rem 1.25rem" }}
+            style={{ padding: "0.45rem 1rem", fontSize: "0.72rem" }}
             disabled={isSaving}
             onClick={handleSave}
           >
-            <FiSave size={15} />
+            <FiSave size={14} />
             <span>
               {isSaving
-                ? "Synchronizing..."
+                ? "Syncing..."
                 : isDemoMode
-                ? "Simulate Save"
-                : "Save Telemetry"}
+                ? "Simulate"
+                : "Save"}
             </span>
           </button>
 
-          {/* Live Circuit Link */}
           <a
             href="https://kshitizlo.vercel.app"
             target="_blank"
             rel="noopener noreferrer"
-            className="admin-btn admin-btn-secondary"
-            style={{ padding: "0.5rem 0.8rem", textDecoration: "none" }}
-            title="Open live public portfolio in new tab"
+            className="admin-btn admin-btn-secondary admin-hide-mobile"
+            style={{ padding: "0.4rem 0.65rem", textDecoration: "none" }}
+            title="Open live public portfolio"
           >
-            <FiExternalLink size={14} />
-            <span className="hidden sm:inline">Live Circuit</span>
+            <FiExternalLink size={13} />
           </a>
 
-          {/* Logout */}
           <button
             type="button"
             className="admin-btn admin-btn-secondary"
-            style={{ padding: "0.5rem 0.8rem" }}
+            style={{ padding: "0.4rem 0.65rem" }}
             onClick={logout}
             title="Lock Cockpit & Logout"
           >
-            <FiLogOut size={14} />
+            <FiLogOut size={13} />
           </button>
         </div>
       </header>
 
-      {/* Navigation Tabs */}
-      <nav className="admin-nav-bar" aria-label="Admin Navigation Tabs">
-        {TABS.map((tab) => {
-          const Icon = tab.icon;
-          const isActive = activeTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              type="button"
-              className={`admin-nav-tab ${isActive ? "active" : ""}`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              <Icon size={14} />
-              <span>{tab.label}</span>
-              {tab.id === "projects" && (
-                <span className="admin-nav-tab-badge">
-                  {data.projects?.length || 0}
+      {/* ═══ BODY (Sidebar + Content) ═══ */}
+      <div className="admin-body">
+        {/* Mobile overlay */}
+        {mobileNavOpen && (
+          <div
+            className="admin-sidebar-overlay"
+            onClick={() => setMobileNavOpen(false)}
+          />
+        )}
+
+        {/* Sidebar Navigation — F1 Timing Tower */}
+        <nav
+          className={`admin-sidebar ${mobileNavOpen ? "mobile-open" : ""}`}
+          aria-label="Admin Navigation"
+        >
+          <div className="admin-sidebar-label">Navigation</div>
+          {TABS.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                className={`admin-nav-tab ${isActive ? "active" : ""}`}
+                onClick={() => handleTabChange(tab.id)}
+              >
+                <span className="admin-nav-tab-icon">
+                  <Icon size={16} />
                 </span>
-              )}
-              {tab.id === "ai" && (
-                <span className="admin-nav-tab-badge">
-                  {data.aiKnowledge?.faqs?.length || 0} FAQs
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
+                <span>{tab.label}</span>
+                {tab.id === "projects" && (
+                  <span className="admin-nav-tab-badge">
+                    {data.projects?.length || 0}
+                  </span>
+                )}
+                {tab.id === "ai" && (
+                  <span className="admin-nav-tab-badge">
+                    {data.aiKnowledge?.faqs?.length || 0}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
-      {/* Main Content Area */}
-      <main className="admin-content">
-        {activeTab === "identity" && (
-          <IdentityTab
-            identity={data.identity}
-            onChange={(newIdentity) => {
-              updateData({ identity: newIdentity });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
+        {/* Main Content Area */}
+        <main className="admin-content" key={activeTab}>
+          {activeTab === "identity" && (
+            <IdentityTab
+              identity={data.identity}
+              onChange={(newIdentity) => {
+                updateData({ identity: newIdentity });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
 
-        {activeTab === "projects" && (
-          <ProjectsTab
-            projects={data.projects}
-            onChange={(newProjects) => {
-              updateData({ projects: newProjects });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
+          {activeTab === "projects" && (
+            <ProjectsTab
+              projects={data.projects}
+              onChange={(newProjects) => {
+                updateData({ projects: newProjects });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
 
-        {activeTab === "experience" && (
-          <ExperienceTab
-            experience={data.experience}
-            education={data.education}
-            onChangeExperience={(newExp) => {
-              updateData({ experience: newExp });
-              setHasUnsavedChanges(true);
-            }}
-            onChangeEducation={(newEdu) => {
-              updateData({ education: newEdu });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
+          {activeTab === "experience" && (
+            <ExperienceTab
+              experience={data.experience}
+              education={data.education}
+              onChangeExperience={(newExp) => {
+                updateData({ experience: newExp });
+                setHasUnsavedChanges(true);
+              }}
+              onChangeEducation={(newEdu) => {
+                updateData({ education: newEdu });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
 
-        {activeTab === "skills" && (
-          <SkillsTab
-            skills={data.skills}
-            certifications={data.certifications}
-            onChangeSkills={(newSkills) => {
-              updateData({ skills: newSkills });
-              setHasUnsavedChanges(true);
-            }}
-            onChangeCertifications={(newCerts) => {
-              updateData({ certifications: newCerts });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
+          {activeTab === "skills" && (
+            <SkillsTab
+              skills={data.skills}
+              certifications={data.certifications}
+              onChangeSkills={(newSkills) => {
+                updateData({ skills: newSkills });
+                setHasUnsavedChanges(true);
+              }}
+              onChangeCertifications={(newCerts) => {
+                updateData({ certifications: newCerts });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
 
-        {activeTab === "passions" && (
-          <PassionsTab
-            passions={data.passions}
-            onChange={(newPassions) => {
-              updateData({ passions: newPassions });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
+          {activeTab === "passions" && (
+            <PassionsTab
+              passions={data.passions}
+              onChange={(newPassions) => {
+                updateData({ passions: newPassions });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
 
-        {activeTab === "ai" && (
-          <AiTab
-            aiKnowledge={data.aiKnowledge}
-            onChange={(newAi) => {
-              updateData({ aiKnowledge: newAi });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
+          {activeTab === "ai" && (
+            <AiTab
+              aiKnowledge={data.aiKnowledge}
+              onChange={(newAi) => {
+                updateData({ aiKnowledge: newAi });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
 
-        {activeTab === "socials" && (
-          <SocialsTab
-            socials={data.socials}
-            onChange={(newSocials) => {
-              updateData({ socials: newSocials });
-              setHasUnsavedChanges(true);
-            }}
-          />
-        )}
-      </main>
+          {activeTab === "socials" && (
+            <SocialsTab
+              socials={data.socials}
+              onChange={(newSocials) => {
+                updateData({ socials: newSocials });
+                setHasUnsavedChanges(true);
+              }}
+            />
+          )}
+        </main>
+      </div>
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="admin-toast">
-          <FiCheckCircle color="#00f0ff" size={18} />
-          <span>{toastMessage}</span>
+        <div className={`admin-toast ${toastType === "error" ? "toast-error" : toastType === "warning" ? "toast-warning" : ""}`}>
+          <FiCheckCircle className="admin-toast-icon" size={18} />
+          <span className="admin-toast-text">{toastMessage}</span>
         </div>
       )}
     </div>

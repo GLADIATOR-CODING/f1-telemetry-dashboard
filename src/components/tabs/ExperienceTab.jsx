@@ -93,216 +93,244 @@ export default function ExperienceTab({ experience = [], education = [], onChang
     <div className="admin-tab-content">
       <div className="admin-section-header">
         <h2 className="admin-section-title">
-          <span>PARC FERMÉ: CAREER &amp; EDUCATION</span>
+          <span>PARC FERMÉ: CAREER & EDUCATION</span>
         </h2>
         <p className="admin-section-desc">
-          Manage your career chronology, internship stints, accomplishments, and degree details displayed in Sector 4.
+          Manage your career chronology, internship stints, accomplishments, and degree details.
         </p>
       </div>
 
       {/* Experience Section */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-        <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <FiBriefcase color="#00f0ff" /> Professional Experience
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)" }}>
+        <h3
+          style={{
+            fontSize: "1rem",
+            fontWeight: 700,
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            fontFamily: "var(--font-display)",
+          }}
+        >
+          <FiBriefcase color="var(--accent-cyan)" /> Professional Experience
         </h3>
         <button type="button" className="admin-btn admin-btn-secondary" onClick={addExperience}>
-          <FiPlus /> Add Position
+          <FiPlus size={13} /> Add Position
         </button>
       </div>
 
-      {experience.map((exp, idx) => (
-        <div key={exp.id || idx} className="admin-panel">
-          <div className="admin-item-header">
-            <div>
-              <h4 style={{ margin: 0, fontSize: "1.1rem", color: "#fff" }}>
-                {exp.role} <span style={{ color: "#00f0ff" }}>@ {exp.company}</span>
-              </h4>
-              <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontFamily: "monospace" }}>
-                {exp.period}
-              </span>
-            </div>
-            <button
-              type="button"
-              className="admin-btn admin-btn-danger"
-              style={{ padding: "0.35rem 0.6rem" }}
-              onClick={() => removeExperience(idx)}
-              title="Remove Position"
-            >
-              <FiTrash2 size={14} />
-            </button>
-          </div>
-
-          <div className="admin-grid-3">
-            <div className="admin-form-group">
-              <label className="admin-label">Role Title</label>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
-                value={exp.role || ""}
-                onChange={(e) => updateExperience(idx, "role", e.target.value)}
-              />
-            </div>
-
-            <div className="admin-form-group">
-              <label className="admin-label">Company / Organization</label>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
-                value={exp.company || ""}
-                onChange={(e) => updateExperience(idx, "company", e.target.value)}
-              />
-            </div>
-
-            <div className="admin-form-group">
-              <label className="admin-label">Tenure / Period</label>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
-                value={exp.period || ""}
-                placeholder="e.g. May 2025 — Aug 2025"
-                onChange={(e) => updateExperience(idx, "period", e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* Highlights */}
-          <div className="admin-form-group">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-              <label className="admin-label" style={{ margin: 0 }}>Key Highlights &amp; Metric Impact</label>
-              <span style={{ fontSize: "0.75rem", color: "#64748b", fontFamily: "monospace" }}>
-                {(exp.highlights || []).length} impact points
-              </span>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "0.75rem" }}>
-              {(exp.highlights || []).map((h, hIdx) => (
-                <div
-                  key={hIdx}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    gap: "0.6rem",
-                    padding: "0.5rem 0.65rem",
-                    background: "rgba(255, 255, 255, 0.03)",
-                    border: "1px solid rgba(255, 255, 255, 0.08)",
-                    borderRadius: 8,
-                    transition: "border-color 0.2s ease",
-                  }}
-                >
-                  <span style={{ color: "#e10600", fontSize: "1rem", marginTop: "0.35rem", userSelect: "none" }}>▸</span>
-                  <textarea
-                    className="admin-textarea"
-                    rows={2}
-                    style={{
-                      flex: 1,
-                      minHeight: "42px",
-                      fontSize: "0.86rem",
-                      lineHeight: 1.4,
-                      padding: "0.45rem 0.65rem",
-                      background: "rgba(0, 0, 0, 0.4)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)",
-                      borderRadius: 6,
-                      resize: "vertical",
-                    }}
-                    value={h}
-                    onChange={(e) => updateHighlight(idx, hIdx, e.target.value)}
-                    placeholder="Engineering achievement with quantifiable metric..."
-                  />
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                    <button
-                      type="button"
-                      className="admin-btn admin-btn-secondary"
-                      style={{ padding: "0.25rem 0.45rem", fontSize: "0.7rem" }}
-                      disabled={hIdx === 0}
-                      onClick={() => moveHighlight(idx, hIdx, -1)}
-                      title="Move Up"
-                    >
-                      <FiArrowUp size={12} />
-                    </button>
-                    <button
-                      type="button"
-                      className="admin-btn admin-btn-secondary"
-                      style={{ padding: "0.25rem 0.45rem", fontSize: "0.7rem" }}
-                      disabled={hIdx === (exp.highlights || []).length - 1}
-                      onClick={() => moveHighlight(idx, hIdx, 1)}
-                      title="Move Down"
-                    >
-                      <FiArrowDown size={12} />
-                    </button>
-                    <button
-                      type="button"
-                      className="admin-btn admin-btn-danger"
-                      style={{ padding: "0.25rem 0.45rem", fontSize: "0.7rem" }}
-                      onClick={() => removeHighlight(idx, hIdx)}
-                      title="Remove Point"
-                    >
-                      <FiTrash2 size={12} />
-                    </button>
-                  </div>
+      {/* Timeline */}
+      <div className="admin-timeline">
+        {experience.map((exp, idx) => (
+          <div key={exp.id || idx} className="admin-timeline-item">
+            <div className="admin-timeline-dot" />
+            <div className="admin-panel" style={{ marginBottom: "var(--space-4)" }}>
+              <div className="admin-item-header" style={{ position: "relative", zIndex: 1 }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: "1rem", color: "#fff", fontWeight: 700 }}>
+                    {exp.role}{" "}
+                    <span style={{ color: "var(--accent-cyan)", fontWeight: 500 }}>@ {exp.company}</span>
+                  </h4>
+                  <span className="admin-period-badge" style={{ marginTop: "0.35rem", display: "inline-flex" }}>
+                    {exp.period}
+                  </span>
                 </div>
-              ))}
-            </div>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-danger"
+                  style={{ padding: "0.25rem 0.45rem" }}
+                  onClick={() => removeExperience(idx)}
+                  title="Remove"
+                >
+                  <FiTrash2 size={13} />
+                </button>
+              </div>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
-                placeholder="Add new metric or achievement (e.g. Reduced API latency by 35%)..."
-                value={newHighlightInputs[idx] || ""}
-                onChange={(e) => setNewHighlightInputs({ ...newHighlightInputs, [idx]: e.target.value })}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addHighlight(idx);
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="admin-btn admin-btn-secondary"
-                onClick={() => addHighlight(idx)}
-              >
-                <FiPlus size={14} /> Add Bullet
-              </button>
+              <div className="admin-grid-3" style={{ position: "relative", zIndex: 1 }}>
+                <div className="admin-form-group">
+                  <label className="admin-label">Role Title</label>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    value={exp.role || ""}
+                    onChange={(e) => updateExperience(idx, "role", e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-label">Company / Organization</label>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    value={exp.company || ""}
+                    onChange={(e) => updateExperience(idx, "company", e.target.value)}
+                  />
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-label">Period</label>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    value={exp.period || ""}
+                    placeholder="e.g. May 2025 — Aug 2025"
+                    onChange={(e) => updateExperience(idx, "period", e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Highlights */}
+              <div className="admin-form-group" style={{ position: "relative", zIndex: 1 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+                  <label className="admin-label" style={{ margin: 0 }}>Key Highlights & Impact</label>
+                  <span className="admin-skill-count">
+                    {(exp.highlights || []).length} points
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", marginBottom: "0.6rem" }}>
+                  {(exp.highlights || []).map((h, hIdx) => (
+                    <div
+                      key={hIdx}
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        gap: "0.5rem",
+                        padding: "0.4rem 0.5rem",
+                        background: "rgba(255, 255, 255, 0.02)",
+                        border: "1px solid var(--border-subtle)",
+                        borderRadius: "var(--radius-sm)",
+                      }}
+                    >
+                      <span style={{ color: "var(--accent-f1)", fontSize: "0.85rem", marginTop: "0.3rem", userSelect: "none" }}>▸</span>
+                      <textarea
+                        className="admin-textarea"
+                        rows={2}
+                        style={{
+                          flex: 1,
+                          minHeight: "38px",
+                          fontSize: "0.82rem",
+                          padding: "0.35rem 0.55rem",
+                          background: "rgba(0, 0, 0, 0.3)",
+                          border: "1px solid var(--border-subtle)",
+                        }}
+                        value={h}
+                        onChange={(e) => updateHighlight(idx, hIdx, e.target.value)}
+                        placeholder="Achievement with quantifiable metric..."
+                      />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-secondary"
+                          style={{ padding: "0.2rem 0.35rem" }}
+                          disabled={hIdx === 0}
+                          onClick={() => moveHighlight(idx, hIdx, -1)}
+                        >
+                          <FiArrowUp size={10} />
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-secondary"
+                          style={{ padding: "0.2rem 0.35rem" }}
+                          disabled={hIdx === (exp.highlights || []).length - 1}
+                          onClick={() => moveHighlight(idx, hIdx, 1)}
+                        >
+                          <FiArrowDown size={10} />
+                        </button>
+                        <button
+                          type="button"
+                          className="admin-btn admin-btn-danger"
+                          style={{ padding: "0.2rem 0.35rem" }}
+                          onClick={() => removeHighlight(idx, hIdx)}
+                        >
+                          <FiTrash2 size={10} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: "flex", gap: "0.4rem" }}>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    placeholder="Add achievement (e.g. Reduced API latency by 35%)..."
+                    value={newHighlightInputs[idx] || ""}
+                    onChange={(e) => setNewHighlightInputs({ ...newHighlightInputs, [idx]: e.target.value })}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addHighlight(idx);
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="admin-btn admin-btn-secondary"
+                    onClick={() => addHighlight(idx)}
+                  >
+                    <FiPlus size={13} /> Add
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
 
       {/* Education Section */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "2.5rem 0 1rem" }}>
-        <h3 style={{ fontSize: "1.2rem", fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <FiBookOpen color="#ffb800" /> Academic Credentials
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", margin: "var(--space-10) 0 var(--space-4)" }}>
+        <h3
+          style={{
+            fontSize: "1rem",
+            fontWeight: 700,
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-2)",
+            fontFamily: "var(--font-display)",
+          }}
+        >
+          <FiBookOpen color="var(--accent-amber)" /> Academic Credentials
         </h3>
         <button type="button" className="admin-btn admin-btn-secondary" onClick={addEducation}>
-          <FiPlus /> Add Degree
+          <FiPlus size={13} /> Add Degree
         </button>
       </div>
 
       {education.map((edu, idx) => (
         <div key={edu.id || idx} className="admin-panel">
-          <div className="admin-item-header">
+          <div className="admin-item-header" style={{ position: "relative", zIndex: 1 }}>
             <div>
-              <h4 style={{ margin: 0, fontSize: "1.1rem", color: "#fff" }}>
-                {edu.degree} <span style={{ color: "#ffb800" }}>— {edu.institution}</span>
+              <h4 style={{ margin: 0, fontSize: "1rem", color: "#fff", fontWeight: 700 }}>
+                {edu.degree}{" "}
+                <span style={{ color: "var(--accent-amber)", fontWeight: 500 }}>— {edu.institution}</span>
               </h4>
-              <span style={{ fontSize: "0.8rem", color: "#94a3b8", fontFamily: "monospace" }}>
-                {edu.period} • GPA: {edu.gpa}
-              </span>
+              <div style={{ display: "flex", gap: "var(--space-3)", marginTop: "0.3rem" }}>
+                <span className="admin-period-badge" style={{ borderColor: "rgba(255, 170, 0, 0.2)", background: "var(--accent-amber-subtle)", color: "var(--accent-amber)" }}>
+                  {edu.period}
+                </span>
+                {edu.gpa && (
+                  <span className="admin-period-badge" style={{ borderColor: "rgba(255, 170, 0, 0.2)", background: "var(--accent-amber-subtle)", color: "var(--accent-amber)" }}>
+                    GPA: {edu.gpa}
+                  </span>
+                )}
+              </div>
             </div>
             <button
               type="button"
               className="admin-btn admin-btn-danger"
-              style={{ padding: "0.35rem 0.6rem" }}
+              style={{ padding: "0.25rem 0.45rem" }}
               onClick={() => removeEducation(idx)}
             >
-              <FiTrash2 size={14} />
+              <FiTrash2 size={13} />
             </button>
           </div>
 
-          <div className="admin-grid-2">
+          <div className="admin-grid-2" style={{ position: "relative", zIndex: 1 }}>
             <div className="admin-form-group">
-              <label className="admin-label">Institution Name</label>
+              <label className="admin-label">Institution</label>
               <input
                 type="text"
                 className="admin-input admin-input-plain"
@@ -322,7 +350,7 @@ export default function ExperienceTab({ experience = [], education = [], onChang
             </div>
 
             <div className="admin-form-group">
-              <label className="admin-label">Period / Graduating Class</label>
+              <label className="admin-label">Period</label>
               <input
                 type="text"
                 className="admin-input admin-input-plain"
@@ -343,13 +371,13 @@ export default function ExperienceTab({ experience = [], education = [], onChang
             </div>
           </div>
 
-          <div className="admin-form-group">
+          <div className="admin-form-group" style={{ position: "relative", zIndex: 1 }}>
             <label className="admin-label">Curriculum / Key Focus</label>
             <input
               type="text"
               className="admin-input admin-input-plain"
               value={edu.details || ""}
-              placeholder="e.g. Focus on algorithms, systems design, and AI/ML fundamentals."
+              placeholder="e.g. Focus on algorithms, systems design, and AI/ML"
               onChange={(e) => updateEducation(idx, "details", e.target.value)}
             />
           </div>

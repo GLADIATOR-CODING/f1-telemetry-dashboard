@@ -4,8 +4,8 @@ import { FiPlus, FiTrash2, FiAward, FiCpu } from "react-icons/fi";
 const SKILL_CATEGORIES = [
   { key: "languages", label: "Programming Languages", color: "#00f0ff" },
   { key: "frameworks", label: "Frameworks & Libraries", color: "#a855f7" },
-  { key: "tools", label: "Developer Tools & Platforms", color: "#ffb800" },
-  { key: "concepts", label: "Engineering Concepts & Systems", color: "#e10600" },
+  { key: "tools", label: "Developer Tools & Platforms", color: "#ffaa00" },
+  { key: "concepts", label: "Engineering Concepts", color: "#e10600" },
 ];
 
 export default function SkillsTab({
@@ -60,32 +60,43 @@ export default function SkillsTab({
     <div className="admin-tab-content">
       <div className="admin-section-header">
         <h2 className="admin-section-title">
-          <span>TECHNICAL TELEMETRY: SKILLS &amp; CERTS</span>
+          <span>TECHNICAL TELEMETRY: SKILLS & CERTS</span>
         </h2>
         <p className="admin-section-desc">
-          Configure technical capabilities displayed in Parc Fermé, used by AI answering technical queries, and rendered in dossiers.
+          Configure technical capabilities used by AI queries and rendered in dossiers.
         </p>
       </div>
 
-      {/* Skills Grids */}
+      {/* Skills Grid */}
       <div className="admin-grid-2">
         {SKILL_CATEGORIES.map((cat) => (
-          <div key={cat.key} className="admin-panel">
-            <h3
-              style={{
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                color: "#fff",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                marginBottom: "1rem",
-              }}
-            >
-              <FiCpu color={cat.color} /> {cat.label}
-            </h3>
+          <div
+            key={cat.key}
+            className="admin-panel admin-skill-panel"
+            data-category={cat.key}
+            style={{ borderTop: `2px solid ${cat.color}` }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-4)", position: "relative", zIndex: 1 }}>
+              <h3
+                style={{
+                  fontSize: "0.88rem",
+                  fontWeight: 700,
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-2)",
+                  fontFamily: "var(--font-display)",
+                  margin: 0,
+                }}
+              >
+                <FiCpu color={cat.color} size={15} /> {cat.label}
+              </h3>
+              <span className="admin-skill-count">
+                {(skills[cat.key] || []).length}
+              </span>
+            </div>
 
-            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+            <div style={{ display: "flex", gap: "0.4rem", marginBottom: "var(--space-3)", position: "relative", zIndex: 1 }}>
               <input
                 type="text"
                 className="admin-input admin-input-plain"
@@ -110,10 +121,25 @@ export default function SkillsTab({
               </button>
             </div>
 
-            <div className="admin-tag-list">
+            <div className="admin-tag-list" style={{ position: "relative", zIndex: 1 }}>
               {(skills[cat.key] || []).map((skill) => (
-                <span key={skill} className="admin-tag-pill">
-                  <span>{skill}</span>
+                <span
+                  key={skill}
+                  className="admin-tag-pill"
+                  style={{ borderColor: `${cat.color}30` }}
+                >
+                  <span style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}>
+                    <span
+                      style={{
+                        width: 6,
+                        height: 6,
+                        borderRadius: "50%",
+                        background: cat.color,
+                        flexShrink: 0,
+                      }}
+                    />
+                    {skill}
+                  </span>
                   <button
                     type="button"
                     onClick={() => removeSkill(cat.key, skill)}
@@ -129,77 +155,78 @@ export default function SkillsTab({
       </div>
 
       {/* Certifications Section */}
-      <div className="admin-panel" style={{ marginTop: "1.5rem" }}>
+      <div className="admin-panel" style={{ marginTop: "var(--space-5)" }}>
         <div className="admin-panel-title">
-          <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <FiAward color="#ffb800" /> Industry Certifications &amp; Badges
+          <span style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+            <FiAward color="var(--accent-amber)" size={15} /> Industry Certifications & Badges
           </span>
           <button
             type="button"
             className="admin-btn admin-btn-secondary"
-            style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }}
+            style={{ padding: "0.3rem 0.6rem", fontSize: "0.7rem" }}
             onClick={addCertification}
           >
-            <FiPlus /> Add Certification
+            <FiPlus size={12} /> Add Cert
           </button>
         </div>
 
-        {certifications.length === 0 ? (
-          <p style={{ color: "#64748b", fontSize: "0.88rem" }}>No certifications recorded yet.</p>
-        ) : (
-          certifications.map((cert, idx) => (
-            <div
-              key={idx}
-              className="admin-item-card"
-              style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}
-            >
-              <div style={{ flex: 2, minWidth: 200 }}>
-                <label className="admin-label">Certification Title</label>
-                <input
-                  type="text"
-                  className="admin-input admin-input-plain"
-                  value={cert.name || ""}
-                  onChange={(e) => updateCert(idx, "name", e.target.value)}
-                  placeholder="e.g. AWS Cloud Practitioner"
-                />
-              </div>
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {certifications.length === 0 ? (
+            <p style={{ color: "var(--text-muted)", fontSize: "0.82rem" }}>No certifications recorded yet.</p>
+          ) : (
+            certifications.map((cert, idx) => (
+              <div key={idx} className="admin-cert-card">
+                <div className="admin-cert-icon">
+                  <FiAward size={18} />
+                </div>
+                <div style={{ flex: 2, minWidth: 180 }}>
+                  <label className="admin-label" style={{ fontSize: "0.62rem" }}>Title</label>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    value={cert.name || ""}
+                    onChange={(e) => updateCert(idx, "name", e.target.value)}
+                    placeholder="e.g. AWS Cloud Practitioner"
+                    style={{ fontSize: "0.82rem", padding: "0.4rem 0.6rem" }}
+                  />
+                </div>
 
-              <div style={{ flex: 2, minWidth: 160 }}>
-                <label className="admin-label">Issuing Authority</label>
-                <input
-                  type="text"
-                  className="admin-input admin-input-plain"
-                  value={cert.issuer || ""}
-                  onChange={(e) => updateCert(idx, "issuer", e.target.value)}
-                  placeholder="e.g. Amazon Web Services"
-                />
-              </div>
+                <div style={{ flex: 2, minWidth: 140 }}>
+                  <label className="admin-label" style={{ fontSize: "0.62rem" }}>Issuer</label>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    value={cert.issuer || ""}
+                    onChange={(e) => updateCert(idx, "issuer", e.target.value)}
+                    placeholder="e.g. Amazon Web Services"
+                    style={{ fontSize: "0.82rem", padding: "0.4rem 0.6rem" }}
+                  />
+                </div>
 
-              <div style={{ flex: 1, minWidth: 100 }}>
-                <label className="admin-label">Year</label>
-                <input
-                  type="text"
-                  className="admin-input admin-input-plain"
-                  value={cert.year || ""}
-                  onChange={(e) => updateCert(idx, "year", e.target.value)}
-                  placeholder="2025"
-                />
-              </div>
+                <div style={{ flex: 1, minWidth: 80 }}>
+                  <label className="admin-label" style={{ fontSize: "0.62rem" }}>Year</label>
+                  <input
+                    type="text"
+                    className="admin-input admin-input-plain"
+                    value={cert.year || ""}
+                    onChange={(e) => updateCert(idx, "year", e.target.value)}
+                    placeholder="2025"
+                    style={{ fontSize: "0.82rem", padding: "0.4rem 0.6rem" }}
+                  />
+                </div>
 
-              <div style={{ alignSelf: "flex-end", marginBottom: "0.25rem" }}>
                 <button
                   type="button"
                   className="admin-btn admin-btn-danger"
-                  style={{ padding: "0.5rem 0.75rem" }}
+                  style={{ padding: "0.4rem", alignSelf: "flex-end", marginBottom: "0.15rem" }}
                   onClick={() => removeCert(idx)}
-                  title="Remove Certification"
                 >
-                  <FiTrash2 />
+                  <FiTrash2 size={13} />
                 </button>
               </div>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

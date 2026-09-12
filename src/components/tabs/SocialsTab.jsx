@@ -1,4 +1,4 @@
-import { FiPlus, FiTrash2, FiShare2 } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiShare2, FiExternalLink } from "react-icons/fi";
 
 export default function SocialsTab({ socials = [], onChange }) {
   const updateSocial = (idx, field, value) => {
@@ -29,38 +29,56 @@ export default function SocialsTab({ socials = [], onChange }) {
       <div className="admin-section-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
         <div>
           <h2 className="admin-section-title">
-            <span>PIT WALL COMMS &amp; SOCIAL TELEMETRY</span>
+            <span>PIT WALL COMMS & SOCIAL TELEMETRY</span>
           </h2>
           <p className="admin-section-desc">
-            Manage your outgoing communication channels, GitHub, LinkedIn, email, and resume download link in the Finish line sector.
+            Manage communication channels — GitHub, LinkedIn, email, and resume links.
           </p>
         </div>
         <button type="button" className="admin-btn admin-btn-secondary" onClick={addSocial}>
-          <FiPlus /> Add Comms Link
+          <FiPlus size={13} /> Add Link
         </button>
       </div>
 
-      <div className="admin-panel">
+      <div className="admin-grid-2">
         {socials.map((soc, idx) => (
-          <div key={soc.id || idx} className="admin-item-card">
-            <div className="admin-item-header" style={{ marginBottom: "0.75rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <FiShare2 color="#00f0ff" />
-                <h4 style={{ margin: 0, color: "#fff", fontSize: "1rem" }}>{soc.label}</h4>
+          <div
+            key={soc.id || idx}
+            className="admin-panel"
+            style={{
+              borderLeft: "3px solid var(--accent-cyan)",
+              paddingLeft: "calc(var(--space-6) + 3px)",
+            }}
+          >
+            <div className="admin-item-header" style={{ marginBottom: "var(--space-3)", position: "relative", zIndex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                <FiShare2 color="var(--accent-cyan)" size={15} />
+                <h4 style={{ margin: 0, color: "#fff", fontSize: "0.92rem", fontWeight: 700 }}>{soc.label}</h4>
+                {soc.href && soc.href !== "https://" && (
+                  <a
+                    href={soc.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ color: "var(--text-muted)", display: "flex", alignItems: "center" }}
+                    title="Open link"
+                  >
+                    <FiExternalLink size={12} />
+                  </a>
+                )}
               </div>
               <button
                 type="button"
                 className="admin-btn admin-btn-danger"
-                style={{ padding: "0.25rem 0.5rem", fontSize: "0.7rem" }}
+                style={{ padding: "0.2rem 0.4rem", fontSize: "0.65rem" }}
                 onClick={() => removeSocial(idx)}
-                title="Remove link"
+                title="Remove"
               >
-                <FiTrash2 />
+                <FiTrash2 size={12} />
               </button>
             </div>
 
-            <div className="admin-grid-3">
-              <div className="admin-form-group">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-3)", position: "relative", zIndex: 1 }}>
+              <div className="admin-form-group" style={{ marginBottom: 0 }}>
                 <label className="admin-label">Platform Name</label>
                 <input
                   type="text"
@@ -71,8 +89,8 @@ export default function SocialsTab({ socials = [], onChange }) {
                 />
               </div>
 
-              <div className="admin-form-group">
-                <label className="admin-label">Display Handle / Text</label>
+              <div className="admin-form-group" style={{ marginBottom: 0 }}>
+                <label className="admin-label">Display Handle</label>
                 <input
                   type="text"
                   className="admin-input admin-input-plain"
@@ -82,7 +100,7 @@ export default function SocialsTab({ socials = [], onChange }) {
                 />
               </div>
 
-              <div className="admin-form-group">
+              <div className="admin-form-group" style={{ marginBottom: 0 }}>
                 <label className="admin-label">Destination URL</label>
                 <input
                   type="text"

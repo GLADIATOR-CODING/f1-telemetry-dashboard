@@ -1,26 +1,114 @@
 /* ==========================================================================
-   F1 Pit Wall Telemetry Dashboard - Core Global Styles & Tokens
+   F1 PIT WALL TELEMETRY DASHBOARD — DESIGN SYSTEM & GLOBAL TOKENS
+   Race-Grade Visual Engineering System
    ========================================================================== */
 
+/* --------------------------------------------------------------------------
+   DESIGN TOKENS
+   -------------------------------------------------------------------------- */
 :root {
+  /* ── Core Palette ─────────────────────────────────────────────────────── */
   --bg-primary: #060608;
-  --bg-secondary: #0e0f14;
-  --bg-tertiary: #16171f;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.16);
+  --bg-secondary: #0a0b10;
+  --bg-tertiary: #101118;
+  --bg-elevated: #14151e;
+  --bg-surface: rgba(14, 15, 22, 0.85);
+  --bg-panel: rgba(10, 11, 18, 0.92);
+  --bg-input: rgba(6, 7, 12, 0.8);
+  --bg-input-focus: rgba(10, 11, 18, 0.95);
+
+  /* ── Borders ──────────────────────────────────────────────────────────── */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --border-focus: rgba(225, 6, 0, 0.6);
+
+  /* ── Racing Accents ───────────────────────────────────────────────────── */
   --accent-f1: #e10600;
-  --accent-f1-glow: rgba(225, 6, 0, 0.3);
+  --accent-f1-bright: #ff1a1a;
+  --accent-f1-dark: #8b0400;
+  --accent-f1-glow: rgba(225, 6, 0, 0.35);
+  --accent-f1-subtle: rgba(225, 6, 0, 0.08);
+
   --accent-cyan: #00f0ff;
+  --accent-cyan-bright: #33f5ff;
+  --accent-cyan-dark: #008a94;
+  --accent-cyan-glow: rgba(0, 240, 255, 0.3);
+  --accent-cyan-subtle: rgba(0, 240, 255, 0.06);
+
   --accent-amber: #ffaa00;
+  --accent-amber-glow: rgba(255, 170, 0, 0.3);
+  --accent-amber-subtle: rgba(255, 170, 0, 0.08);
+
   --accent-green: #00ff66;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
-  --font-display: "Chakra Petch", sans-serif;
+  --accent-green-glow: rgba(0, 255, 102, 0.3);
+  --accent-green-subtle: rgba(0, 255, 102, 0.06);
+
+  --accent-purple: #a855f7;
+  --accent-purple-glow: rgba(168, 85, 247, 0.3);
+  --accent-purple-subtle: rgba(168, 85, 247, 0.06);
+
+  /* ── Text Hierarchy ───────────────────────────────────────────────────── */
+  --text-primary: #f0f2f5;
+  --text-secondary: #8b93a6;
+  --text-muted: #555d72;
+  --text-disabled: #3a3f50;
+  --text-accent: var(--accent-cyan);
+
+  /* ── Typography ───────────────────────────────────────────────────────── */
+  --font-sans: "Outfit", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", "Cascadia Code", Consolas, monospace;
+  --font-display: "Chakra Petch", "Orbitron", sans-serif;
+  --font-telemetry: "Orbitron", "Chakra Petch", sans-serif;
+
+  /* ── Spacing (4px grid) ───────────────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+
+  /* ── Border Radius (sharp motorsport edges) ───────────────────────────── */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-pill: 9999px;
+
+  /* ── Elevation & Shadows ──────────────────────────────────────────────── */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.7);
+  --shadow-glow-red: 0 0 20px var(--accent-f1-glow), 0 0 60px rgba(225, 6, 0, 0.1);
+  --shadow-glow-cyan: 0 0 20px var(--accent-cyan-glow), 0 0 60px rgba(0, 240, 255, 0.08);
+  --shadow-glow-amber: 0 0 20px var(--accent-amber-glow);
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+
+  /* ── Animation Curves ─────────────────────────────────────────────────── */
+  --ease-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* ── Sidebar ──────────────────────────────────────────────────────────── */
+  --sidebar-width: 260px;
+  --sidebar-collapsed: 64px;
+  --header-height: 56px;
+
+  /* ── Ambient Effects ──────────────────────────────────────────────────── */
+  --scanline-opacity: 0.03;
+  --vignette-strength: 0.4;
+  --grid-opacity: 0.02;
 }
 
+/* --------------------------------------------------------------------------
+   RESET & BASE
+   -------------------------------------------------------------------------- */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -34,8 +122,13 @@ html, body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
+/* --------------------------------------------------------------------------
+   TYPOGRAPHY UTILITIES
+   -------------------------------------------------------------------------- */
 .font-display {
   font-family: var(--font-display);
 }
@@ -44,10 +137,17 @@ html, body {
   font-family: var(--font-mono);
 }
 
-/* Custom Scrollbar for Cockpit */
+.font-telemetry {
+  font-family: var(--font-telemetry);
+  letter-spacing: 0.05em;
+}
+
+/* --------------------------------------------------------------------------
+   CUSTOM SCROLLBAR — COCKPIT GRADE
+   -------------------------------------------------------------------------- */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -55,10 +155,131 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 3px;
+  transition: background 0.2s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent-f1);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) var(--bg-primary);
+}
+
+/* --------------------------------------------------------------------------
+   GLOBAL ANIMATION KEYFRAMES
+   -------------------------------------------------------------------------- */
+
+/* Breathing pulse for status dots */
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+/* Telemetry pulse — subtle glow throb */
+@keyframes telemetryPulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px currentColor; }
+  50% { opacity: 0.6; box-shadow: 0 0 12px currentColor; }
+}
+
+/* Scanline sweep — horizontal line moving down */
+@keyframes scanlineSweep {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+/* Panel entrance — slide up and fade in */
+@keyframes panelSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Glow breathe for borders */
+@keyframes glowBreathe {
+  0%, 100% { border-color: rgba(225, 6, 0, 0.4); }
+  50% { border-color: rgba(225, 6, 0, 0.15); }
+}
+
+/* Data stream — for loading effects */
+@keyframes dataStream {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Stripe sweep — racing stripe animation */
+@keyframes stripeSweep {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* Fade in generic */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Slide in from left */
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Slide in from bottom */
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Counter tick */
+@keyframes counterPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Radio wave for AI transmit */
+@keyframes radioWave {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Progress bar fill */
+@keyframes progressFill {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+
+/* Horizontal scanning line for login */
+@keyframes scanLine {
+  0% { top: -2px; }
+  100% { top: 100%; }
+}
+
+/* Typing cursor blink */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Rotate flag icon */
+@keyframes flagWave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(6deg); }
+  75% { transform: rotate(-6deg); }
+}
+
+/* Selection */
+::selection {
+  background: rgba(225, 6, 0, 0.3);
+  color: #fff;
 }

@@ -82,85 +82,71 @@ export default function AiTab({ aiKnowledge = {}, onChange }) {
     <div className="admin-tab-content">
       <div className="admin-section-header">
         <h2 className="admin-section-title">
-          <span>AI RACE ENGINEER: BRAIN &amp; FAQ TUNING</span>
+          <span>AI RACE ENGINEER: BRAIN & FAQ</span>
         </h2>
         <p className="admin-section-desc">
-          When visitors talk to your AI Race Engineer via the Radio, it references these FAQs, your projects, skills, and background notes to answer accurately and with motorsport flair.
+          When visitors talk to your AI via the Radio, it references these FAQs, projects, skills, and background notes.
         </p>
       </div>
 
-      {/* Interactive AI Test Bench */}
-      <div
-        className="admin-panel"
-        style={{
-          borderLeft: "3px solid #00f0ff",
-          background: "linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(14, 15, 20, 0.8) 100%)",
-        }}
-      >
+      {/* Radio Test Bench */}
+      <div className="admin-panel admin-radio-panel">
         <h3
           style={{
-            fontSize: "1.05rem",
+            fontSize: "0.88rem",
             fontWeight: 700,
             color: "#fff",
             display: "flex",
             alignItems: "center",
-            gap: "0.5rem",
-            marginBottom: "0.5rem",
+            gap: "var(--space-2)",
+            marginBottom: "var(--space-2)",
+            fontFamily: "var(--font-display)",
+            position: "relative",
+            zIndex: 1,
           }}
         >
-          <FiRadio color="#00f0ff" /> Live AI Telemetry Radio Test Bench
+          <FiRadio color="var(--accent-cyan)" size={16} /> Live AI Radio Test Bench
         </h3>
-        <p style={{ fontSize: "0.82rem", color: "#94a3b8", marginBottom: "1rem" }}>
-          Test what the Gemini Race Engineer answers using the target server knowledge base. (Click &apos;Save Changes&apos; in the top bar first to sync new edits to Redis).
+        <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "var(--space-4)", position: "relative", zIndex: 1 }}>
+          Test what the Gemini Race Engineer answers. Save changes first to sync edits to Redis.
         </p>
 
-        <form onSubmit={handleTestChat} style={{ display: "flex", gap: "0.5rem" }}>
-          <input
-            type="text"
-            className="admin-input admin-input-plain"
-            placeholder="Ask a question (e.g., 'What is your favorite stack?' or 'Tell me about ShinChan Simulator')..."
-            value={testMessage}
-            onChange={(e) => setTestMessage(e.target.value)}
-          />
+        <form onSubmit={handleTestChat} style={{ display: "flex", gap: "0.4rem", position: "relative", zIndex: 1 }}>
+          <div style={{ flex: 1, position: "relative" }}>
+            <input
+              type="text"
+              className="admin-input admin-input-plain"
+              placeholder="Ask a question (e.g., 'What is your favorite stack?')..."
+              value={testMessage}
+              onChange={(e) => setTestMessage(e.target.value)}
+              style={{ paddingRight: "3.5rem" }}
+            />
+            {isTesting && (
+              <div className="admin-radio-wave" style={{ position: "absolute", right: "0.75rem", top: "50%", transform: "translateY(-50%)" }}>
+                <span /><span /><span /><span />
+              </div>
+            )}
+          </div>
           <button
             type="submit"
             className="admin-btn admin-btn-accent"
             disabled={isTesting}
+            style={{ padding: "0.45rem 0.85rem" }}
           >
-            {isTesting ? <FiZap className="animate-spin" /> : <FiSend />}
+            {isTesting ? <FiZap size={14} /> : <FiSend size={14} />}
             <span>{isTesting ? "Radioing..." : "Transmit"}</span>
           </button>
         </form>
 
         {testError && (
-          <div className="admin-error-banner" style={{ marginTop: "1rem" }}>
+          <div className="admin-error-banner" style={{ marginTop: "var(--space-4)" }}>
             <span>Radio static: {testError}</span>
           </div>
         )}
 
         {testResponse && (
-          <div
-            style={{
-              marginTop: "1rem",
-              padding: "1rem",
-              background: "rgba(0, 0, 0, 0.5)",
-              border: "1px solid rgba(0, 240, 255, 0.2)",
-              borderRadius: 8,
-              fontFamily: "monospace",
-              fontSize: "0.88rem",
-              lineHeight: 1.6,
-              color: "#e2e8f0",
-            }}
-          >
-            <div
-              style={{
-                color: "#00f0ff",
-                fontWeight: 700,
-                fontSize: "0.75rem",
-                letterSpacing: "0.1em",
-                marginBottom: "0.4rem",
-              }}
-            >
+          <div className="admin-radio-response">
+            <div className="admin-radio-label">
               📻 RACE ENGINEER (GEMINI):
             </div>
             {testResponse}
@@ -168,75 +154,92 @@ export default function AiTab({ aiKnowledge = {}, onChange }) {
         )}
       </div>
 
-      {/* Extra Notes & Lore */}
+      {/* Extra Notes */}
       <div className="admin-panel">
-        <h3 className="admin-panel-title">Additional Context &amp; Custom Lore</h3>
-        <p style={{ fontSize: "0.82rem", color: "#94a3b8", marginBottom: "0.75rem" }}>
-          Include any specific background details, tone guidelines, recruiter talking points, or facts you want the AI to remember.
+        <h3 className="admin-panel-title">Additional Context & Custom Lore</h3>
+        <p style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginBottom: "var(--space-3)", position: "relative", zIndex: 1 }}>
+          Background details, tone guidelines, or recruiter talking points for the AI.
         </p>
         <textarea
           className="admin-textarea"
           rows={4}
           value={aiKnowledge.extraNotes || ""}
           onChange={(e) => updateExtraNotes(e.target.value)}
-          placeholder="e.g. Always emphasize high performance and low latency. Open to full-stack and distributed systems roles..."
+          placeholder="e.g. Always emphasize high performance and low latency..."
+          style={{ position: "relative", zIndex: 1 }}
         />
       </div>
 
       {/* FAQ Management */}
       <div className="admin-panel">
         <div className="admin-panel-title">
-          <span>Curated Question &amp; Answer Pairs</span>
+          <span>Curated Q&A Pairs</span>
           <button
             type="button"
             className="admin-btn admin-btn-secondary"
-            style={{ padding: "0.4rem 0.8rem", fontSize: "0.75rem" }}
+            style={{ padding: "0.3rem 0.6rem", fontSize: "0.7rem" }}
             onClick={addFaq}
           >
-            <FiPlus /> Add FAQ Pair
+            <FiPlus size={12} /> Add FAQ
           </button>
         </div>
 
-        {(aiKnowledge.faqs || []).map((faq, idx) => (
-          <div key={idx} className="admin-item-card">
-            <div className="admin-item-header" style={{ marginBottom: "0.5rem" }}>
-              <span className="admin-label" style={{ margin: 0 }}>
-                FAQ #{idx + 1}
-              </span>
-              <button
-                type="button"
-                className="admin-btn admin-btn-danger"
-                style={{ padding: "0.25rem 0.5rem", fontSize: "0.7rem" }}
-                onClick={() => removeFaq(idx)}
-                title="Remove FAQ"
-              >
-                <FiTrash2 />
-              </button>
-            </div>
+        <div style={{ position: "relative", zIndex: 1 }}>
+          {(aiKnowledge.faqs || []).map((faq, idx) => (
+            <div key={idx} className="admin-item-card">
+              <div className="admin-item-header" style={{ marginBottom: "0.4rem" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--space-2)" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-telemetry)",
+                      fontSize: "0.72rem",
+                      color: "var(--accent-f1)",
+                      fontWeight: 700,
+                      background: "var(--accent-f1-subtle)",
+                      padding: "0.15rem 0.4rem",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid rgba(225, 6, 0, 0.2)",
+                    }}
+                  >
+                    {String(idx + 1).padStart(2, "0")}
+                  </span>
+                  <span className="admin-label" style={{ margin: 0 }}>FAQ</span>
+                </div>
+                <button
+                  type="button"
+                  className="admin-btn admin-btn-danger"
+                  style={{ padding: "0.2rem 0.4rem", fontSize: "0.65rem" }}
+                  onClick={() => removeFaq(idx)}
+                  title="Remove FAQ"
+                >
+                  <FiTrash2 size={12} />
+                </button>
+              </div>
 
-            <div className="admin-form-group" style={{ marginBottom: "0.75rem" }}>
-              <label className="admin-label">Question</label>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
-                value={faq.q || ""}
-                onChange={(e) => updateFaq(idx, "q", e.target.value)}
-                placeholder="e.g. Are you open to relocation?"
-              />
-            </div>
+              <div className="admin-form-group" style={{ marginBottom: "0.6rem" }}>
+                <label className="admin-label">Question</label>
+                <input
+                  type="text"
+                  className="admin-input admin-input-plain"
+                  value={faq.q || ""}
+                  onChange={(e) => updateFaq(idx, "q", e.target.value)}
+                  placeholder="e.g. Are you open to relocation?"
+                />
+              </div>
 
-            <div className="admin-form-group" style={{ marginBottom: 0 }}>
-              <label className="admin-label">Answer</label>
-              <textarea
-                className="admin-textarea"
-                rows={2}
-                value={faq.a || ""}
-                onChange={(e) => updateFaq(idx, "a", e.target.value)}
-                placeholder="e.g. Yes, open to relocating for the right opportunity..."
-              />
+              <div className="admin-form-group" style={{ marginBottom: 0 }}>
+                <label className="admin-label">Answer</label>
+                <textarea
+                  className="admin-textarea"
+                  rows={2}
+                  value={faq.a || ""}
+                  onChange={(e) => updateFaq(idx, "a", e.target.value)}
+                  placeholder="e.g. Yes, open to relocating..."
+                />
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
