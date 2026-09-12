@@ -32,6 +32,7 @@ import PassionsTab from "./tabs/PassionsTab";
 import AiTab from "./tabs/AiTab";
 import SocialsTab from "./tabs/SocialsTab";
 import AnalyticsTab from "./tabs/AnalyticsTab";
+import MiniRaceEngineer from "./MiniRaceEngineer";
 import "./AdminDashboard.css";
 
 const TABS = [
@@ -491,6 +492,9 @@ export default function AdminDashboard() {
           <span className="admin-toast-text">{toastMessage}</span>
         </div>
       )}
+
+      {/* Floating Pixel Mascot */}
+      <MiniRaceEngineer activeTab={activeTab} />
     </div>
   );
 }
