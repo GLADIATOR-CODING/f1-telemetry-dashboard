@@ -29,7 +29,7 @@ This dashboard operates as a **Decoupled Headless CMS**:
 ```
 
 ### Security Highlights
-- **Zero Exposure on Public Portfolio**: The deployed portfolio (`kshitizlo.vercel.app`) contains no admin bundle, UI routes, or login forms.
+- **Zero Exposure on Public Portfolio**: The deployed portfolio (`link`) contains no admin bundle, UI routes, or login forms.
 - **Strict CORS Origin Whitelisting**: Serverless functions only accept mutation calls from authorized localhost ports and verified origins.
 - **Constant-Time Cryptographic Passkey Verification**: Secured with bcrypt and SHA-256 constant-time comparisons (`crypto.timingSafeEqual`).
 - **Cryptographically Signed Session Tokens**: Employs timestamped, nonce-salted HMAC-SHA256 tokens with automated 14-day expiry.
@@ -63,7 +63,7 @@ By default, the dashboard connects to `http://localhost:3000` (when running alon
 To connect to your live production portfolio, copy `.env.example` to `.env`:
 
 ```env
-VITE_PORTFOLIO_API_URL=https://kshitizlo.vercel.app
+VITE_PORTFOLIO_API_URL=https:"link"
 ```
 *(You can also change the target server directly from the login screen in the UI).*
 
