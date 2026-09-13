@@ -313,7 +313,7 @@ export default function ExperienceTab({ experience = [], education = [], onChang
                 </span>
                 {edu.gpa && (
                   <span className="admin-period-badge" style={{ borderColor: "rgba(255, 170, 0, 0.2)", background: "var(--accent-amber-subtle)", color: "var(--accent-amber)" }}>
-                    GPA: {edu.gpa}
+                    {edu.scoreType || "GPA"}: {edu.gpa}
                   </span>
                 )}
               </div>
@@ -360,14 +360,28 @@ export default function ExperienceTab({ experience = [], education = [], onChang
             </div>
 
             <div className="admin-form-group">
-              <label className="admin-label">GPA / Score</label>
-              <input
-                type="text"
-                className="admin-input admin-input-plain"
-                value={edu.gpa || ""}
-                placeholder="e.g. 8.5 / 10"
-                onChange={(e) => updateEducation(idx, "gpa", e.target.value)}
-              />
+              <label className="admin-label">Score Type & Value</label>
+              <div style={{ display: "flex", gap: "8px" }}>
+                <select
+                  className="admin-input admin-input-plain"
+                  style={{ flex: "0 0 110px", padding: "0.5rem" }}
+                  value={edu.scoreType || "GPA"}
+                  onChange={(e) => updateEducation(idx, "scoreType", e.target.value)}
+                >
+                  <option value="GPA">GPA</option>
+                  <option value="CGPA">CGPA</option>
+                  <option value="Score">Score</option>
+                  <option value="Percentage">Percentage</option>
+                </select>
+                <input
+                  type="text"
+                  className="admin-input admin-input-plain"
+                  style={{ flex: 1 }}
+                  value={edu.gpa || ""}
+                  placeholder="e.g. 8.5 / 10"
+                  onChange={(e) => updateEducation(idx, "gpa", e.target.value)}
+                />
+              </div>
             </div>
           </div>
 
