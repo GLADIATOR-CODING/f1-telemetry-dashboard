@@ -159,11 +159,11 @@ const INITIAL_PORTFOLIO_DATA = {
       color: "#0A66C2"
     },
     {
-      id: "email",
-      href: "mailto:loharukakshitiz@gmail.com",
-      label: "Email",
-      username: "loharukakshitiz@gmail.com",
-      color: "var(--accent-cyan)"
+      id: "calendly",
+      href: "https://calendly.com/loharukakshitiz",
+      label: "Calendly",
+      username: "Book a Call",
+      color: "#006BFF"
     },
     {
       id: "twitter",
@@ -171,6 +171,13 @@ const INITIAL_PORTFOLIO_DATA = {
       label: "X",
       username: "@KshitizLoharuka",
       color: "#ffffff"
+    },
+    {
+      id: "email",
+      href: "mailto:loharukakshitiz@gmail.com",
+      label: "Email",
+      username: "loharukakshitiz@gmail.com",
+      color: "var(--accent-cyan)"
     },
     {
       id: "resume",
